@@ -1,0 +1,50 @@
+{
+  "manifest_version": 2,
+
+  "name": "Ali Go",
+  "description": "Xi'an Technology ",
+  "version": "1.0.1",
+  "icons": { "128": "icon_128.png" },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+	
+  },
+  
+  "content_scripts": [
+    {
+		"run_at": "document_idle",
+      "matches": ["<all_urls>","http://*/*","https://*/*"],
+	  "js": ["inject.js","jquery.min.js","search_product.js","alertifyjs/alertify.js","single_product.js","popup.js"],
+      "css": ["search_product.css","alertifyjs/css/alertify.css","single_product.css"]   
+	  
+	  
+    }
+					],
+  
+   "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": ["activeTab", "tabs","contextMenus"],
+	"web_accessible_resources": [
+			"jquery.min.js",
+			"search_product.js",
+			"single_product.js",
+			"popup.js",			
+			"icon.png",
+			"icon_68.png",
+			"alertifyjs/alertify.js",
+			"alertifyjs/css/alertify.css",
+			"single_product.css"
+			]
+			
+	
+			
+
+
+ 
+  
+}
+
+
+ 
