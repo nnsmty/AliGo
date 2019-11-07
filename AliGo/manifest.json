@@ -15,8 +15,8 @@
     {
 		"run_at": "document_idle",
       "matches": ["<all_urls>","http://*/*","https://*/*"],
-	  "js": ["inject.js","jquery.min.js","search_product.js","alertifyjs/alertify.js","single_product.js","popup.js"],
-      "css": ["search_product.css","alertifyjs/css/alertify.css","single_product.css"]   
+	  "js": ["inject.js","jquery.min.js","search_product.js","single_product.js","popup.js"],
+      "css": ["search_product.css"]   
 	  
 	  
     }
@@ -32,10 +32,9 @@
 			"single_product.js",
 			"popup.js",			
 			"icon.png",
-			"icon_68.png",
-			"alertifyjs/alertify.js",
-			"alertifyjs/css/alertify.css",
-			"single_product.css"
+			"icon_68.png"
+			
+			
 			]
 			
 	
