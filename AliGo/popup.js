@@ -7,6 +7,7 @@
    
     success: function(data) {
         drawTable(data);
+		alert(data);
     }
 });  */
 
