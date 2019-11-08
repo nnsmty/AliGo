@@ -35,14 +35,14 @@ function drawRow(rowData) {
 
 var current_url="";
 
-/* chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
     console.log("working1 " + tabs[0].url);
-	
-	 current_url= tabs[0].url ; 
-	 
+
+	 current_url= tabs[0].url ;
+
 	 check_aliexpress_product (current_url);
 	 setlink();
-}); */
+});
 
 function setlink() {
 	
@@ -115,7 +115,8 @@ pro();
 
 
 function pro(){
-	
+//    var id = $('#product_id').html()
+//	alert(id)
 		$("#header_text").text("Importing..." );
 			$("#header_id").css('background', '#FF4747');
 	
@@ -156,16 +157,38 @@ function pro(){
 function get_prod_if(url_to_id){
 //get_product_in
 	   $(document).ready(function() {
-           
-           
-               $.getJSON("https://140.82.35.203/static/download/Json/"+url_to_id+".json", function(jd) {
-                  $('#stage').html('<p> Product Name : ' + jd.Stock + '</p>');
-                  $('#stage').append('<p>Orders: ' + jd.orders+ '</p>');
-                  $('#stage').append('<p> reviews: ' + jd.reviews+ '</p>');
-               });
+	        $.ajax({
+                type:'get',
+                url:'https://140.82.35.203/json/api/'+url_to_id,
+                success:function(data){
+                    $('#stage').html('<p> Product Name : ' + data['product_Name'] + '</p>');
+                    $('#stage').append('<p>Orders: ' + data['orders']+ '</p>');
+                    $('#stage').append('<p> Reviews: ' + data['reviews']+ '</p>');
+                    $('#stage').append('<p> Overview Rating: ' + data['overview-rating']+ '</p>');
+                    $('#stage').append('<p> Stock: ' + data['Stock']+ '</p>');
+                    $('#stage').append('<p> Tags: ' + data['freight']['*Tags']+ '</p>');
+                    $('#stage').append('<p> Description: ' + data['freight']['Description']+ '</p>');
+                    $('#stage').append('<p> Freight: ' + data['freight']['Declared Name']+ '</p>');
+                    $('#stage').append('<p> Declared Local Name: ' + data['freight']['Declared Local Name']+ '</p>');
+                    $('#stage').append('<p> Localized Shipping: ' + data['freight']['*Shipping']+ '</p>');
+                    $('#stage').append('<p> Country Of Origin: ' + data['freight']['Country Of Origin']+ '</p>');
+                    $('#stage').append('<p> StoreName: ' + data['storeName']+ '</p>');
+                    $('#stage').append('<p> Followers: ' + data['followers']+ '</p>');
+                    $('#stage').append('<p> Rating: ' + data['rating']+ '</p>');
+                },
+                error:function(){
+                    alert("Request Error");
+                },
+                dataType:"json"
+            });
+//               $.getJSON("https://140.82.35.203/static/download/Json/"+url_to_id+".json", function(jd) {
+//                  $('#stage').html('<p> Product Name : ' + jd.Stock + '</p>');
+//                  $('#stage').append('<p>Orders: ' + jd.orders+ '</p>');
+//                  $('#stage').append('<p> reviews: ' + jd.reviews+ '</p>');
+//               });
             
                
          });
 		 
-		 alert("https://140.82.35.203/static/download/Json/"+url_to_id+".json");
+//		 alert("https://140.82.35.203/static/download/Json/"+url_to_id+".json");
 }
