@@ -11,9 +11,7 @@
     }
 });  */
 
-
-	
-			   
+		   
 			   
 
 function drawTable(data) {
@@ -36,10 +34,11 @@ function drawRow(rowData) {
 var current_url="";
 
 chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-    console.log("working1 " + tabs[0].url);
+    console.log("current_url" + tabs[0].url);
 
 	 current_url= tabs[0].url ;
-
+	 
+	
 	 check_aliexpress_product (current_url);
 	 setlink();
 });
@@ -69,7 +68,10 @@ function split_to_get_id(current_url) {
 
 
 $("#product_id").text(url_to_id );
-//get_prod_if(url_to_id);
+
+
+
+
 }
 
 
@@ -94,7 +96,6 @@ function check_aliexpress_product (current_url){
 			$("#header_text").text("Ali Express Product" );
 			$("#header_id").css('background', 'Green');
 			get_prod_if(url_to_id);
-			
 	}else{
 		
 		 		console.log("Its not a Aliexpress Product ") ;
@@ -145,7 +146,7 @@ function pro(){
 		  traditional: true,
 		  error: function (data) {
 			//  alert(data);
-			console.log("Ali Go Request Error");
+			console.log("error in Ali Go"+data);
 		  }
 		});
 	
@@ -179,8 +180,8 @@ function get_prod_if(url_to_id){
                     $('#stage').append('<p> Rating: ' + data['rating']+ '</p>');
                 },
                 error:function(){
-                    //alert("Request Error");
-					console.log("Ali Go Request Error");
+                   // alert("Request Error");
+				   
                 },
                 dataType:"json"
             });
