@@ -69,7 +69,7 @@ function split_to_get_id(current_url) {
 
 
 $("#product_id").text(url_to_id );
-get_prod_if(url_to_id);
+//get_prod_if(url_to_id);
 }
 
 
@@ -93,6 +93,7 @@ function check_aliexpress_product (current_url){
 			console.log("Its not a Aliexpress Product ") ;
 			$("#header_text").text("Ali Express Product" );
 			$("#header_id").css('background', 'Green');
+			get_prod_if(url_to_id);
 			
 	}else{
 		
@@ -143,7 +144,8 @@ function pro(){
 		  //防止深度序列化。传递数组元素属性必设置为true！
 		  traditional: true,
 		  error: function (data) {
-			  alert(data);
+			//  alert(data);
+			console.log("Ali Go Request Error");
 		  }
 		});
 	
@@ -177,7 +179,8 @@ function get_prod_if(url_to_id){
                     $('#stage').append('<p> Rating: ' + data['rating']+ '</p>');
                 },
                 error:function(){
-                    alert("Request Error");
+                    //alert("Request Error");
+					console.log("Ali Go Request Error");
                 },
                 dataType:"json"
             });
