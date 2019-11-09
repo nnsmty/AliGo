@@ -21,7 +21,7 @@ console.log("Hello world 21");
  //$(".product-img" ).append( "<div id='DIV_1'>	<span id='SPAN_2'>ePacket</span><span id='SPAN_3'>Free</span></div>" );
  
  //hover button 
-	var url_im = chrome.runtime.getURL('icon_68.png') ;  
+	//var url_im = chrome.runtime.getURL('icon_68.png') ;  
 	//$(".gallery.product-card.middle-place" ).append( '<a class="import" title="Push this product to Ali Go" id="A_1"><img  src=" '+ url_im+'" alt="Import product to Ali Go" id="IMG_2" /></a>');
 	
 

@@ -16,7 +16,7 @@
 		"run_at": "document_idle",
   // "matches": ["<all_urls>","http://*/*","https://*/*"],
    "matches": ["https://www.aliexpress.com/*/*","http://www.aliexpress.com/*/*"],
-	  "js": ["inject.js","jquery.min.js","search_product.js","single_product.js","popup.js"],
+	  "js": ["inject.js","jquery.min.js","search_product.js","single_product.js"],
       "css": ["search_product.css"]   
 	  
 	  
