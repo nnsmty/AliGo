@@ -1,9 +1,13 @@
-import requests, csv, re, random, threading, json
+import requests, csv, re, random, threading, json, socket
 from lxml import etree
 from threading import Thread
 from my_fake_useragent import UserAgent
 
+requests.packages.urllib3.disable_warnings()
 ua = UserAgent(family='chrome')
+# socket.setdefaulttimeout(5)
+
+
 
 def get_id(id):
     url = 'https://www.aliexpress.com/item/' + id + '.html'
@@ -12,7 +16,7 @@ def get_id(id):
     }
     while True:
         try:
-            html = requests.get(url, headers=headers, verify=False).text
+            html = requests.get(url, headers=headers, verify=False, timeout=5).text
             break
         except:
             pass
@@ -30,7 +34,7 @@ class Data(object):
         self.date_data = {}
         self.country_color = {}
 
-    def get_page(self, id):
+    def get_page(self, id, q):
         page = 1
         id, ownerId = get_id(id)
         url = 'https://feedback.aliexpress.com/display/productEvaluation.htm'
@@ -61,17 +65,18 @@ class Data(object):
         }
         while True:
             try:
-                html = requests.post(url, data=data, headers=headers, verify=False).text
+                html = requests.post(url, data=data, headers=headers, verify=False, timeout=5).text
                 break
             except:
                 pass
         prease_html = etree.HTML(html)
         page = prease_html.xpath('//*[@id="transction-feedback"]/div[3]/div[1]/span/em/text()')[0]
         page = (int(page) // 10) + 1
+
         t_list = []
         # 设置线程上线
         self.thread_max = threading.BoundedSemaphore(500)
-        for i in range(page):
+        for i in range(1,page):
             # 如果线程达到最大值则等待前面线程跑完空出线程位置
             self.thread_max.acquire()
             t = Thread(target=self.get_country, args=(i, id, ownerId))
@@ -79,11 +84,12 @@ class Data(object):
             t_list.append(t)
         for t in t_list:
             t.join()
-        user_data = {}
-        user_data['country_data'] = self.sort(self.country_data)
-        user_data['color_data'] = self.sort(self.color_data)
-        user_data['size_data'] = self.sort(self.size_data)
-        return user_data
+
+        # user_data = {}
+        # user_data['country_data'] = self.sort(self.country_data)
+        # user_data['color_data'] = self.sort(self.color_data)
+        # user_data['size_data'] = self.sort(self.size_data)
+        q.put(self.sort(self.country_data))
 
     def get_country(self, page, id, ownerId):
         url = 'https://feedback.aliexpress.com/display/productEvaluation.htm'
@@ -114,7 +120,7 @@ class Data(object):
         }
         while True:
             try:
-                html = requests.post(url, data=data, headers=headers, verify=False).text
+                html = requests.post(url, data=data, headers=headers, verify=False, timeout=5).text
                 break
             except:
                 pass
@@ -132,7 +138,7 @@ class Data(object):
         for i in country_list1:
             x = i.split(' ')[1]
             country_list.append(x.split('_')[1])
-        print(country_list)
+        # print(country_list)
         color_list = prease_html.xpath('//div[@class="user-order-info"]/span[1]/text()')[1::2]
         Logistics_list = prease_html.xpath('//div[@class="user-order-info"]/span[3]/text()')[1::2]
         if Logistics_list == []:
@@ -172,7 +178,7 @@ class Data(object):
         headers = {
             'User-Agent': ua.random()
         }
-        res = requests.get(url=url, headers=headers, allow_redirects=False)
+        res = requests.get(url=url, headers=headers, allow_redirects=False, timeout=5)
         cookie = res.headers['Set-Cookie']
         self.intl_common_forever = re.findall(r'intl_common_forever=(.*?);', cookie)[0]
         self.JSESSIONID = re.findall(r'JSESSIONID=(.*?);', cookie)[0]
@@ -190,7 +196,7 @@ class Data(object):
             'referer': 'https://www.aliexpress.com/item/'+ID+'.html',
             'User-Agent': ua.random()
         }
-        data = requests.get(url,headers= headers).text
+        data = requests.get(url,headers= headers,timeout=5).text
         data = data[18:]
         data = data[:-1]
         JSON = json.loads(data)
@@ -208,7 +214,7 @@ class Data(object):
         headers = {
             'User-Agent': ua.random()
         }
-        html = requests.get(url2, headers=headers).text
+        html = requests.get(url2, headers=headers,timeout=5).text
         sellerAdminSeq = re.findall(r'"sellerAdminSeq":(\d+),', html)[0]
         c_list = self.get_c(ID)
         t_list = []
@@ -236,7 +242,7 @@ class Data(object):
             'sec-fetch-site': 'same-origin',
             'User-Agent': ua.random()
         }
-        res = requests.get(url=url, headers=headers, allow_redirects=False)
+        res = requests.get(url=url, headers=headers, allow_redirects=False,timeout=5)
         cookie = res.headers['Set-Cookie']
         try:
             self.JSESSIONID = re.findall(r'JSESSIONID=(.*?);', cookie)[0]
@@ -255,9 +261,9 @@ class Data(object):
         except:
             pass
 
-if __name__ == '__main__':
-    data=Data()
+# if __name__ == '__main__':
+#     data=Data()
     # id = input('请输入')
-    dict = data.get_page('32881981068')
+    # dict = data.get_page('32881981068')
     # dict = data.get_postage('32881981068')
-    print(dict)
+    # print(dict)

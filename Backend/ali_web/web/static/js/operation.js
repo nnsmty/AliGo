@@ -894,6 +894,8 @@ $(function (){
         form_data = new FormData;
         // 参数1：后端请求时要获取的参数, 参数2：图片文件File对象
         form_data.append("files", $("#upimg")[0].files[0]);
+        var host = window.location.host
+        form_data.append("host",host)
         // 向后端发送 ajax 请求
         $.ajax({
             url: "/img/",
@@ -921,10 +923,12 @@ $(function (){
     $(document).on('change','.upshow_img',function(){
         // 创建一个表单对象（用于存储要发送的data数据）
         var id = $(this)['0']['name']
+        var host = window.location.host
         form_data = new FormData;
         // 参数1：后端请求时要获取的参数, 参数2：图片文件File对象
         form_data.append("files", $(this)[0].files[0]);
         form_data.append("ID", id);
+        form_data.append("host", host);
         // 向后端发送 ajax 请求
         $.ajax({
             url: "/show_img/",

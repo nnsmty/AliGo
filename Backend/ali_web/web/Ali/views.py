@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from . import ali_id,aliexpress
+from . import ali_id
+from .aliexpress import Data
 from .models import *
 import json, re, csv, os, base64, time
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from multiprocessing import Process
 
 
 def index(request):
@@ -470,7 +472,7 @@ def checked_csv(request):
 
 @csrf_exempt
 def wish(request):
-    #try:
+    try:
         id = request.POST['id']
         data = Ali.objects.get(num=id)
         list = []
@@ -483,8 +485,8 @@ def wish(request):
             list.append(i.split("', '"))
         wish_csv(id,list)
         return HttpResponse('ok')
-    #except:
-    #    return HttpResponse('error')
+    except:
+       return HttpResponse('error')
 
 @csrf_exempt
 def checked_wish_csv(request):
@@ -628,7 +630,7 @@ def wish_csv(ID,data_list):
             elif name_data_list[x] == 'Local Currency Code':
                 data_data_list.append('CNY')
             elif name_data_list[x] == 'Localized Shipping':
-                data_data_list.append('2')
+                data_data_list.append('15')
             elif name_data_list[x] == '*Main Image URL':
                 data_data_list.append(showimg)
             elif name_data_list[x] == 'Clean Image URL':
@@ -688,27 +690,29 @@ def order_json(request,id):
 def imgViews(request):
     try:
         file_img = request.FILES.get('files', None)
-        file = save_image(file_img)
+        host = request.POST.get('host')
+        file = save_image(host,file_img)
         return HttpResponse(file)
     except:
         return HttpResponse('error')
 
 # 定义一个保存图片的方法
-def save_image(files):
+def save_image(host,files):
     name = (base64.b32encode(str(time.time()).encode('utf-8'))).decode('utf-8')
     filename = "%s.%s" % (name, files.name.split('.')[-1])
     full_filename = "%s/%s" % ('./static/upload/img', filename)
     with open(full_filename, 'wb+') as destination:
         for chunk in files.chunks():
             destination.write(chunk)
-    return 'https://127.0.0.1:8000/static/upload/img/'+filename
+    return 'https://'+host+'/static/upload/img/'+filename
 
 @csrf_exempt
 def change_show(request):
     try:
         file_img = request.FILES.get('files', None)
         id = request.POST.get('ID')
-        file = save_image(file_img)
+        host = request.POST.get('host')
+        file = save_image(host,file_img)
         data = Ali.objects.get(num = id)
         data.showimg=file
         data.save()
@@ -718,6 +722,20 @@ def change_show(request):
 
 @csrf_exempt
 def country(request):
-    id = request.POST.get('id')
-    print(id)
-    return HttpResponse('ok')
+    try:
+        id = request.POST.get('id')
+        try:
+            import multiprocessing
+            q = multiprocessing.Queue()
+            p = Process(target=Data.get_page, args=(Data(),id,q))
+            p.start()
+            p.join()
+            list1 = q.get()
+        except:
+            return HttpResponse('error')
+        dict = {}
+        for i in list1:
+            dict[i[0]] = i[1]
+        return HttpResponse(json.dumps(dict), content_type="application/json")
+    except:
+        return HttpResponse('error')
