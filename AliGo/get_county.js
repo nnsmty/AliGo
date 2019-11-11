@@ -1,6 +1,7 @@
-$(document).on('click','#countydata',function(){
-    $('#country').html('<img src="wait.gif" style="width:100px;">')
+$(document).on('click','#countrydata',function(){
+    $('#country').html('<img src="images/wait.gif" style="width:100px;">')
     var id = $('#product_id').html();
+    console.log('country',id)
     var host = window.location.host
     $.ajax({
         type: "POST",//传输方式
