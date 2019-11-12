@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="194c7e4e-854f-4ebc-b1f3-2e2339180b15" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/images/left.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/right.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/get_county.js" beforeDir="false" afterPath="$PROJECT_DIR$/get_county.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/popup.html" beforeDir="false" afterPath="$PROJECT_DIR$/popup.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,6 +23,9 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../ali_web" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\Desktop\ali\AliGo\AliGo\images" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Administrator\Desktop\ali\AliGo\AliGo\images" />
       <recent name="C:\Users\Administrator\Desktop\ali\AliGo\AliGo" />
