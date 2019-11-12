@@ -89,7 +89,7 @@
                             {% for list in data %}
                                 <tr>
                                     <th><input type="checkbox" value="{{ list.num }}" class="download_csv"></th>
-                                    <th><a href="https://www.aliexpress.com/item/{{ list.num }}.html"></a>{{ list.num }}</th>
+                                    <th><a href="https://www.aliexpress.com/item/{{ list.num }}.html">{{ list.num }}</a></th>
                                     <th>{{ list.title }}<a class="change_img" name="{{ list.num }}"><img id="{{ list.num }}" src="{{ list.showimg }}"></a><input class="upshow_img" name="{{ list.num }}" style="float:right;display:none;" type="file" accept="image/gif, image/jpg, image/png"></th>
                                     <th>{{ list.stock }}</th>
                                     <th>

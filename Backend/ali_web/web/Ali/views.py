@@ -45,16 +45,16 @@ def get_data(request):
         ID = re.findall(r'/(\d+).html', id)[0]
     except:
         return HttpResponse('IDerror')
-    try:
-        list = ali_id.get_data(ID)
-        dict = {
-            "ID": ID,
-            "data": list
-        }
-        write_csv(ID,list)
-        return HttpResponse(json.dumps(dict), content_type="application/json")
-    except:
-        return HttpResponse('error')
+    #try:
+    list = ali_id.get_data(ID)
+    dict = {
+        "ID": ID,
+        "data": list
+    }
+    write_csv(ID,list)
+    return HttpResponse(json.dumps(dict), content_type="application/json")
+    #except:
+     #   return HttpResponse('error')
 
 
 def del_data(request):
@@ -510,17 +510,38 @@ def checked_wish_csv(request):
 
 
 def wish_csv(ID,data_list):
-    img_data_list = []
-    for x in range(len(data_list[1:])):
-        x += 1
-        for y in range(len(data_list[0])):
-            if data_list[0][y] == 'imgUrl':
-                img_data_list.append(data_list[x][y])
-    img = set(img_data_list)
-    img_data_list = list(img)
-    img_name_list = []
-    for i in range(len(img_data_list)):
-        img_name_list.append('Extra Image URL '+str(i))
+    # img_data_list = []
+    # for x in range(len(data_list[1:])):
+    #     x += 1
+    #     for y in range(len(data_list[0])):
+    #         if data_list[0][y] == 'imgUrl':
+    #             img_data_list.append(data_list[x][y])
+    # img = set(img_data_list)
+    # img_data_list = list(img)
+    # img_name_list = []
+    # for i in range(len(img_data_list)):
+    #     img_name_list.append('Extra Image URL '+str(i))
+    a = Data()
+    dic = a.get_postage(ID)
+    print(dic)
+    mail = []
+    t = 1
+    for x in dic:
+        if dic[x] == 0.0:
+            mail.append(x)
+            mail.append('Free Shipping')
+            break
+        elif x == 'ePacket':
+            mail.append(x)
+            mail.append(dic[x])
+        else:
+            t = 2
+    if t == 2:
+        list = [(k, dic[k]) for k in sorted(dic.keys())]
+        so = sorted(list, key=lambda x: x[1], reverse=True)
+        mail.append(so[-1][0])
+        mail.append(so[-1][1])
+    print(mail)
     data = Ali.objects.get(num=ID)
     str1 = data.dict
     list2 = re.findall(r"'(.*?)': '(.*?)'",str1)
@@ -534,12 +555,13 @@ def wish_csv(ID,data_list):
         os.remove(filename)
     out = open(filename, 'a', newline='',encoding='utf-8-sig')
     csv_writer = csv.writer(out, dialect='excel')
-    name_data_list = ['Parent Unique ID','*Unique ID','*Product Name','Declared Name','Declared Local Name','Localized Price','Local Currency Code','Color','Size','*Quantity','*Tags','Description','Localized Shipping',
-                 'Shipping Time(enter without " ", just the estimated days )','*Main Image URL','Clean Image URL']
-    for i in img_name_list:
-        name_data_list.append(i)
+    name_data_list = ['Parent Unique ID','*Unique ID','*Product Name','Declared Name','Declared Local Name','Localized Price','Local Currency Code','Color','Size','*Quantity','*Tags','Description','(US)'+mail[0],'Localized Shipping',
+                 'Shipping Time(enter without " ", just the estimated days )','*Main Image URL','Clean Image URL','Extra Image URL']
+    # for i in img_name_list:
+    #     name_data_list.append(i)
     for i in ['Pieces','Package Length ','Package Width ','Package Height ','Package Weight ','Country Of Origin','Contains Powder','Contains Liquid ','Contains Battery',' Contains Metal','Custom Declared Value','Custom HS Code']:
         name_data_list.append(i)
+
     csv_writer.writerow(name_data_list)
     for i in range(len(data_list[1:])):
         i += 1
@@ -614,32 +636,46 @@ def wish_csv(ID,data_list):
                 data_data_list.append(Name)
                 # data_data_list.append(dict['Description'])
             elif name_data_list[x] == 'Localized Price':
-                try:
-                    price = dict['*Price'].replace(',', '')
-                    money = float(price)*7.0164
-                    data_data_list.append('%.2f' % money)
-                except:
-                    price = dict['*Price'].replace(' ', '')
-                    list1 = price.split('-')
-                    price_list = []
-                    for cc in list1:
-                        money = '%.2f' % (float(cc) * 7.0164)
-                        price_list.append(money)
-                    price = '-'.join(price_list)
-                    data_data_list.append(price)
+                for index in range(len(data_list[0])):
+                    if data_list[0][index] == 'Price':
+                        money = float(data_list[i][index]) * 7.0164
+                        data_data_list.append('%.2f' % money)
+                # try:
+                #     price = dict['*Price'].replace(',', '')
+                #     money = float(price)*7.0164
+                #     data_data_list.append('%.2f' % money)
+                # except:
+                #     price = dict['*Price'].replace(' ', '')
+                #     list1 = price.split('-')
+                #     price_list = []
+                #     for cc in list1:
+                #         money = '%.2f' % (float(cc) * 7.0164)
+                #         price_list.append(money)
+                #     price = '-'.join(price_list)
+                #     data_data_list.append(price)
             elif name_data_list[x] == 'Local Currency Code':
                 data_data_list.append('CNY')
+            elif name_data_list[x] == '(US)'+mail[0]:
+                if mail[1] != 'Free Shipping':
+                    money = float(mail[1]) * 7.0164
+                    data_data_list.append('%.2f' % money)
+                else:
+                    data_data_list.append(mail[1])
             elif name_data_list[x] == 'Localized Shipping':
                 data_data_list.append('15')
             elif name_data_list[x] == '*Main Image URL':
                 data_data_list.append(showimg)
             elif name_data_list[x] == 'Clean Image URL':
                 data_data_list.append(showimg)
-                for q in range(len(img_name_list)):
-                    if img_data_list[q] == 'no images':
-                        data_data_list.append('')
-                    else:
-                        data_data_list.append(img_data_list[q])
+            elif name_data_list[x] == 'Extra Image URL':
+                for index in range(len(data_list[0])):
+                    if data_list[0][index] == 'imgUrl':
+                        data_data_list.append(data_list[i][index])
+                # for q in range(len(img_name_list)):
+                #     if img_data_list[q] == 'no images':
+                #         data_data_list.append('')
+                #     else:
+                #         data_data_list.append(img_data_list[q])
             elif name_data_list[x] == 'Country Of Origin':
                 try:
                     data_data_list[x] = dict['Country Of Origin']
@@ -649,40 +685,42 @@ def wish_csv(ID,data_list):
                 data_data_list.append('15-30')
             else:
                 data_data_list.append(' ')
-        print('datadata',data_data_list[7])
         csv_writer.writerow(data_data_list)
     out.close()
 
 
 def order_json(request,id):
     try:
-        list = ali_id.get_data(id)
-        dict = {}
-        start = 0
-        end = 0
-        for i in range(len(list[0])):
-            list[0][i] = '_'.join(list[0][i].split(' '))
-            if list[0][i] == 'Stock':
-                start = i + 1
-            elif list[0][i] == 'storeName':
-                end = i - 1
-        availQuantity = []
-        for i in range(len(list[0])):
-            for x in list[1:]:
-                if i < start:
-                    dict[list[0][i]] = x[i]
-                elif i > end:
-                    dict[list[0][i]] = x[i]
-                elif start <= i <= end:
-                    list1 = []
-                    for y in range(start, end + 1):
-                        list1.append(x[y])
-                    if list1 not in availQuantity:
-                        availQuantity.append(list1)
-        dict['availQuantity'] = availQuantity
-        dict2 = ali_id.get_freight(id)
-        dict['freight'] = dict2
-        return HttpResponse(json.dumps(dict), content_type="application/json")
+        if id.isdigit() == False:
+            return HttpResponse('error')
+        else:
+            list = ali_id.get_data(id)
+            dict = {}
+            start = 0
+            end = 0
+            for i in range(len(list[0])):
+                list[0][i] = '_'.join(list[0][i].split(' '))
+                if list[0][i] == 'Stock':
+                    start = i + 1
+                elif list[0][i] == 'storeName':
+                    end = i - 1
+            availQuantity = []
+            for i in range(len(list[0])):
+                for x in list[1:]:
+                    if i < start:
+                        dict[list[0][i]] = x[i]
+                    elif i > end:
+                        dict[list[0][i]] = x[i]
+                    elif start <= i <= end:
+                        list1 = []
+                        for y in range(start, end + 1):
+                            list1.append(x[y])
+                        if list1 not in availQuantity:
+                            availQuantity.append(list1)
+            dict['availQuantity'] = availQuantity
+            dict2 = ali_id.get_freight(id)
+            dict['freight'] = dict2
+            return HttpResponse(json.dumps(dict), content_type="application/json")
     except:
         return HttpResponse('API call failed!Please check the item ID!')
 
@@ -727,10 +765,14 @@ def country(request):
         try:
             import multiprocessing
             q = multiprocessing.Queue()
+            
             p = Process(target=Data.get_page, args=(Data(),id,q))
             p.start()
             p.join()
             list1 = q.get()
+            
+            if list1 == 'No Feedback.':
+                return HttpResponse('No Feedback.')
         except:
             return HttpResponse('error')
         dict = {}

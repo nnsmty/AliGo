@@ -1,6 +1,7 @@
 import pymysql
 import time
 from ali_id import stock
+import ali_id
 
 
 class Update(object):
@@ -15,22 +16,26 @@ class Update(object):
         self.cursor.execute("select num from Ali_ali")
         results = self.cursor.fetchall()
         sum = 0
+        list1 = []
         for i in results:
+            print(i)
             try:
                 a = stock(i[0])
+                list = ali_id.get_data(i[0])
             except:
                 sum += 1
+                list1.append(i[0])
                 continue
             self.cursor.execute("select data from Ali_ali where num = " + i[0])
-            data = (self.cursor.fetchall())[0][0]
-            list = []
-            str1 = data[2:]
-            str2 = str1[:-2]
-            b = str2.split('], [')
-            for z in b:
-                z = z[1:]
-                z = z[:-1]
-                list.append(z.split("', '"))
+            # data = (self.cursor.fetchall())[0][0]
+            # list = []
+            # str1 = data[2:]
+            # str2 = str1[:-2]
+            # b = str2.split('], [')
+            # for z in b:
+            #     z = z[1:]
+            #     z = z[:-1]
+            #     list.append(z.split("', '"))
             for y in range(len(list[0])):
                 if list[0][y] == 'Stock':
                     for x in list[1:]:
@@ -47,9 +52,17 @@ class Update(object):
                 # 发生错误时回滚
                 self.db.rollback()
                 sum += 1
+                list1.append(i[0])
         if sum == 0:
             self.to_log('All Updated Successfully')
         else:
+            print(list1)
+            str1 = ''
+            for x in list1:
+                str1 += x+'  '
+            with open(r'../static/log/update.log', 'a') as f:
+                f.write(str1)
+            f.close()
             self.to_log(str(sum) + ' Update failed')
         # 关闭数据库连接
         self.db.close()
@@ -66,4 +79,4 @@ if __name__ == '__main__':
     while True:
         updata = Update()
         updata.update_data()
-        time.sleep(5)
+        time.sleep(60*60*24)

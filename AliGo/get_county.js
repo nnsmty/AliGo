@@ -8,9 +8,11 @@ $(document).on('click','#countrydata',function(){
         url: "https://140.82.35.203/country/",//url
         data: {"id":id},//传输的数据
         success: function (data) {
+            console.log(data)
             if (data == 'error'){
-                alert('Get error please try again')
-                $('#country').html('')
+                $('#country').html('Get error please try again')
+            }else if (data == 'No Feedback.'){
+                $('#country').html('<p>No Feedback.</p>')
             }else{
                 html = ''
                 for (var i in data){

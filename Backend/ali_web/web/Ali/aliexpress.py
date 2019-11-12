@@ -69,27 +69,33 @@ class Data(object):
                 break
             except:
                 pass
+        
         prease_html = etree.HTML(html)
-        page = prease_html.xpath('//*[@id="transction-feedback"]/div[3]/div[1]/span/em/text()')[0]
-        page = (int(page) // 10) + 1
+        try:
+            no = prease_html.xpath('//html/body/div/div/strong/text()')[0]
+            print(no)
+            q.put('No Feedback.')
+        except:
+            page = prease_html.xpath('//*[@id="feedback-list"]/div[1]/span/em/text()')[0]    
+            page = (int(page) // 10) + 1
 
-        t_list = []
-        # 设置线程上线
-        self.thread_max = threading.BoundedSemaphore(500)
-        for i in range(1,page):
-            # 如果线程达到最大值则等待前面线程跑完空出线程位置
-            self.thread_max.acquire()
-            t = Thread(target=self.get_country, args=(i, id, ownerId))
-            t.start()
-            t_list.append(t)
-        for t in t_list:
-            t.join()
+            t_list = []
+            # 设置线程上线
+            self.thread_max = threading.BoundedSemaphore(500)
+            for i in range(1,page):
+                # 如果线程达到最大值则等待前面线程跑完空出线程位置
+                self.thread_max.acquire()
+                t = Thread(target=self.get_country, args=(i, id, ownerId))
+                t.start()
+                t_list.append(t)
+            for t in t_list:
+                t.join()
 
-        # user_data = {}
-        # user_data['country_data'] = self.sort(self.country_data)
-        # user_data['color_data'] = self.sort(self.color_data)
-        # user_data['size_data'] = self.sort(self.size_data)
-        q.put(self.sort(self.country_data))
+            # user_data = {}
+            # user_data['country_data'] = self.sort(self.country_data)
+            # user_data['color_data'] = self.sort(self.color_data)
+            # user_data['size_data'] = self.sort(self.size_data)
+            q.put(self.sort(self.country_data))
 
     def get_country(self, page, id, ownerId):
         url = 'https://feedback.aliexpress.com/display/productEvaluation.htm'
@@ -216,22 +222,24 @@ class Data(object):
         }
         html = requests.get(url2, headers=headers,timeout=5).text
         sellerAdminSeq = re.findall(r'"sellerAdminSeq":(\d+),', html)[0]
-        c_list = self.get_c(ID)
-        t_list = []
-        # 设置线程上线
-        self.thread_max = threading.BoundedSemaphore(500)
-        for i in c_list:
-            # 如果线程达到最大值则等待前面线程跑完空出线程位置
-            self.thread_max.acquire()
-            t = Thread(target=self.get_this, args=(ID, sellerAdminSeq, i))
-            t.start()
-            t_list.append(t)
-        for t in t_list:
-            t.join()
+        self.get_this(ID,sellerAdminSeq,'US')
+        # c_list = self.get_c(ID)
+        # t_list = []
+        # # 设置线程上线
+        # self.thread_max = threading.BoundedSemaphore(500)
+        # for i in c_list:
+        #     # 如果线程达到最大值则等待前面线程跑完空出线程位置
+        #     self.thread_max.acquire()
+        #     t = Thread(target=self.get_this, args=(ID, sellerAdminSeq, i))
+        #     t.start()
+        #     t_list.append(t)
+        # for t in t_list:
+        #     t.join()
         return self.dict
 
     def get_this(self,ID,Seq,c):
-        url = 'https://www.aliexpress.com/aeglodetailweb/api/logistics/freight?productId='+ID+'&count=1&minPrice=0.01&maxPrice=0.4&country='+c+'&provinceCode=&cityCode=&tradeCurrency=USD&sellerAdminSeq='+Seq+'&userScene=PC_DETAIL_SHIPPING_PANEL'
+        self.get_cookie()
+        url = 'https://www.aliexpress.com/aeglodetailweb/api/logistics/freight?productId='+ID+'&count=1&country='+c+'&provinceCode=&cityCode=&tradeCurrency=USD&sellerAdminSeq='+Seq+'&userScene=PC_DETAIL_SHIPPING_PANEL'
         headers = {
             'accept': 'application/json,text/plain,*/*',
             'accept-encoding': 'gzip,deflate,br',
@@ -257,7 +265,7 @@ class Data(object):
                         self.dict[x['company']] = x['freightAmount']['value']
                 except:
                     self.dict[x['company']] = x['freightAmount']['value']
-                self.dict['sendGoodsCountry'] = x['sendGoodsCountry']
+                # self.dict['sendGoodsCountry'] = x['sendGoodsCountry']
         except:
             pass
 
@@ -265,5 +273,5 @@ class Data(object):
 #     data=Data()
     # id = input('请输入')
     # dict = data.get_page('32881981068')
-    # dict = data.get_postage('32881981068')
+    # dict = data.get_postage('4000114931935')
     # print(dict)

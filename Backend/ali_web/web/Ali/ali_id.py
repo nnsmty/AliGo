@@ -157,27 +157,36 @@ def get_data(ID):
     # 		size = re.findall('"propertyValueDisplayName":"(.*?)","propertyValueId":(\d+),', i[1])
     # 	elif 'Color' in i[0]:
     # 		color_data = re.findall(r'"propertyValueDisplayName":"(.*?)","propertyValueId":(\d+),',i[1])
-    Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"availQuantity":(\d+),.*?}}', html)
+    Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"actSkuMultiCurrencyDisplayPrice":"(.*?)".*?"availQuantity":(\d+),.*?}}', html)
+    # Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"availQuantity":(\d+),.*?}}', html)
+    # print(Quantity)
     list1 = []
     for x in dict:
         for y in dict[x]:
             list1.append(y)
+    # print('a',list1)
     e_inventory = []
     for x in Quantity:
         a_list = []
         for i in list1:
             if i[1] in re.split(',', x[0]):
+                # print('xxxxx', re.split(',', x[0]))
+                # print(i[1])
                 a_list.append(i[0] + '-' + i[1])
         a_list.append(x[1])
+        a_list.append(x[2])
         e_inventory.append(a_list)
+    # print('b',e_inventory)
     e_dict = {}
     for i in e_inventory:
         e_dict[i[0]] = ''
+    # print('c',e_dict)
     inventory = []
     for a in e_dict:
         for x in e_inventory:
             if a == x[0]:
                 inventory.append(x)
+    # print('d',inventory)
     Description = re.findall(r'"attrName":"(.*?)".*?"attrValue":"(.*?)"', html)
     Description_data = {}
     for i in Description:
@@ -206,6 +215,7 @@ def get_data(ID):
     name_list = []
     for i in dict:
         name_list.append(i)
+    # print(sDic)
     return to_2D(url, sDic, name_list)
 
 
@@ -296,12 +306,12 @@ def to_2D(url, sDic, Name_list):
         for x in ['storeName', 'storeUrl', 'storeNumber', 'followers', 'rating']:
             name_list.append(x)
     else:
-        for x in ['Inventory', 'imgUrl', 'storeName', 'storeUrl', 'storeNumber', 'followers',
+        for x in ['Price','Inventory', 'imgUrl', 'storeName', 'storeUrl', 'storeNumber', 'followers',
                   'rating']:
             name_list.append(x)
     all_list.append(name_list)
     data = sDic
-
+    # print(name_list)
     for i in range(len(data["CInventory"])):
         data_list = []
         b = data["CInventory"][i]

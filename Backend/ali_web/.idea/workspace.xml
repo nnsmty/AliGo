@@ -11,15 +11,15 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="ProjectId" id="1SgvxU6VDtakXpLbeDfs3jTeZO3" />
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../AliGo1" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -50,7 +50,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.aliexpress">
+  <component name="RunManager" selected="Python.update">
     <configuration name="1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ali_web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -158,11 +158,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.aliexpress" />
-        <item itemvalue="Python.1" />
         <item itemvalue="Python.update" />
-        <item itemvalue="Python.ali_kw" />
+        <item itemvalue="Python.aliexpress" />
         <item itemvalue="Python.ali_id" />
+        <item itemvalue="Python.1" />
+        <item itemvalue="Python.ali_kw" />
       </list>
     </recent_temporary>
   </component>
