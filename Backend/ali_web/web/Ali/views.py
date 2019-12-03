@@ -95,9 +95,13 @@ def find_sql(request):
         data = Ali.objects.get(num=id)
         id = data.num
         title = data.title
+        stock = data.stock
+        showimg = data.showimg
         data = {
             "ID": id,
             "title": title,
+            "stock":stock,
+            "showimg":showimg
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
     except:
@@ -523,7 +527,6 @@ def wish_csv(ID,data_list):
     #     img_name_list.append('Extra Image URL '+str(i))
     a = Data()
     dic = a.get_postage(ID)
-    print(dic)
     mail = []
     t = 1
     for x in dic:
@@ -541,7 +544,6 @@ def wish_csv(ID,data_list):
         so = sorted(list, key=lambda x: x[1], reverse=True)
         mail.append(so[-1][0])
         mail.append(so[-1][1])
-    print(mail)
     data = Ali.objects.get(num=ID)
     str1 = data.dict
     list2 = re.findall(r"'(.*?)': '(.*?)'",str1)
@@ -621,7 +623,9 @@ def wish_csv(ID,data_list):
                         data_data_list.append(data_list[i][y])
                         Q = 2
                 if Q == 1:
-                    data_data_list.append('')
+                    for y in range(len(data_list[0])):
+                        if data_list[0][y] == 'Stock':
+                            data_data_list.append(data_list[i][y])
             elif name_data_list[x] == '*Tags':
                 Name = dict['*Tags'].replace('free shipping', '')
                 Name = Name.replace('Free Shipping', '')
@@ -636,10 +640,41 @@ def wish_csv(ID,data_list):
                 data_data_list.append(Name)
                 # data_data_list.append(dict['Description'])
             elif name_data_list[x] == 'Localized Price':
+                if 'Price' not in data_list[0]:
+                    for index in range(len(data_list[0])):
+                        if data_list[0][index] == 'Original(US $)':
+                            money = float(data_list[i][index])
+                            if 0 < money <= 3:
+                                money = money + 10
+                            elif 3.01 < money <= 4:
+                                money = money * 6
+                            elif 4.01 < money <= 10:
+                                money = money + 15
+                            elif 10.01 < money <= 20:
+                                money = money * 2
+                            elif 20.01 < money <= 100:
+                                money = money * 1.8
+                            elif 100.01 < money:
+                                money = money * 1.5
+                            money1 = money * 7.0164
+                            data_data_list.append('%.2f' % money1)
                 for index in range(len(data_list[0])):
                     if data_list[0][index] == 'Price':
-                        money = float(data_list[i][index]) * 7.0164
-                        data_data_list.append('%.2f' % money)
+                        money = float(data_list[i][index])
+                        if 0 < money <= 3:
+                            money = money + 10
+                        elif 3.01 < money <= 4:
+                            money = money * 6
+                        elif 4.01 < money <= 10:
+                            money = money + 15
+                        elif 10.01 < money <= 20:
+                            money = money * 2
+                        elif 20.01 < money <= 100:
+                            money = money * 1.8
+                        elif 100.01 < money:
+                            money = money * 1.5
+                        money1 = money * 7.0164
+                        data_data_list.append('%.2f' % money1)
                 # try:
                 #     price = dict['*Price'].replace(',', '')
                 #     money = float(price)*7.0164
@@ -662,15 +697,40 @@ def wish_csv(ID,data_list):
                 else:
                     data_data_list.append(mail[1])
             elif name_data_list[x] == 'Localized Shipping':
-                data_data_list.append('15')
+                data_data_list.append('0.0')
             elif name_data_list[x] == '*Main Image URL':
-                data_data_list.append(showimg)
-            elif name_data_list[x] == 'Clean Image URL':
-                data_data_list.append(showimg)
-            elif name_data_list[x] == 'Extra Image URL':
+                AA = 1
                 for index in range(len(data_list[0])):
                     if data_list[0][index] == 'imgUrl':
-                        data_data_list.append(data_list[i][index])
+                        if data_list[i][index] == 'no images':
+                            data_data_list.append(showimg)
+                        else:
+                            data_data_list.append(data_list[i][index])
+                        AA = 2
+                if AA == 1:
+                    data_data_list.append(showimg)
+            elif name_data_list[x] == 'Clean Image URL':
+                AA = 1
+                for index in range(len(data_list[0])):
+                    if data_list[0][index] == 'imgUrl':
+                        if data_list[i][index] == 'no images':
+                            data_data_list.append(showimg)
+                        else:
+                            data_data_list.append(data_list[i][index])
+                        AA = 2
+                if AA == 1:
+                    data_data_list.append(showimg)
+            elif name_data_list[x] == 'Extra Image URL':
+                AA = 1
+                for index in range(len(data_list[0])):
+                    if data_list[0][index] == 'imgUrl':
+                        if data_list[i][index] == 'no images':
+                            data_data_list.append(showimg)
+                        else:
+                            data_data_list.append(data_list[i][index])
+                        AA = 2
+                if AA == 1:
+                    data_data_list.append(showimg)
                 # for q in range(len(img_name_list)):
                 #     if img_data_list[q] == 'no images':
                 #         data_data_list.append('')
@@ -742,7 +802,7 @@ def save_image(host,files):
     with open(full_filename, 'wb+') as destination:
         for chunk in files.chunks():
             destination.write(chunk)
-    return 'https://'+host+'/static/upload/img/'+filename
+    return 'http://'+host+'/static/upload/img/'+filename
 
 @csrf_exempt
 def change_show(request):
@@ -758,6 +818,7 @@ def change_show(request):
     except:
         return HttpResponse('error')
 
+
 @csrf_exempt
 def country(request):
     try:
@@ -765,19 +826,48 @@ def country(request):
         try:
             import multiprocessing
             q = multiprocessing.Queue()
-            
-            p = Process(target=Data.get_page, args=(Data(),id,q))
+
+            p = Process(target=Data.get_page, args=(Data(), id, q))
             p.start()
-            p.join()
             list1 = q.get()
-            
-            if list1 == 'No Feedback.':
+            if list1 == 'No Feedback.' or list1 == [[],[]]:
                 return HttpResponse('No Feedback.')
         except:
             return HttpResponse('error')
         dict = {}
-        for i in list1:
+        for i in list1[0]:
             dict[i[0]] = i[1]
+        dict['user_img'] = list1[1]
+        dict['start_data'] = list1[2]
         return HttpResponse(json.dumps(dict), content_type="application/json")
     except:
         return HttpResponse('error')
+
+
+@csrf_exempt
+def look_show(request):
+    # try:
+        file_img = request.FILES.get('files', None)
+        id = request.POST.get('ID')
+        line = request.POST.get('line')
+        host = request.POST.get('host')
+        file = save_image(host,file_img)
+        data = Ali.objects.get(num = id)
+        list = []
+        str1 = data.data[2:]
+        str2 = str1[:-2]
+        a = str2.split('], [')
+        for i in a:
+            i = i[1:]
+            i = i[:-1]
+            list.append(i.split("', '"))
+        for i in range(len(list[0])):
+            if list[0][i] == 'imgUrl':
+                list[int(line)][i] = file
+                print(file)
+        print(list)
+        data.data=list
+        data.save()
+        return HttpResponse(file)
+    # except:
+    #     return HttpResponse('error')

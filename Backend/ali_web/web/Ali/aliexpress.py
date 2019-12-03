@@ -33,6 +33,8 @@ class Data(object):
         self.size_data = {}
         self.date_data = {}
         self.country_color = {}
+        self.user_img = []
+        self.start_data = []
 
     def get_page(self, id, q):
         page = 1
@@ -66,6 +68,7 @@ class Data(object):
         while True:
             try:
                 html = requests.post(url, data=data, headers=headers, verify=False, timeout=5).text
+                print(html)
                 break
             except:
                 pass
@@ -94,8 +97,11 @@ class Data(object):
             # user_data = {}
             # user_data['country_data'] = self.sort(self.country_data)
             # user_data['color_data'] = self.sort(self.color_data)
-            # user_data['size_data'] = self.sort(self.size_data)
-            q.put(self.sort(self.country_data))
+            # user_data['size_data'] = self.sort
+            # data_list = [self.sort(self.country_data),self.user_img]
+            # q.put([self.sort(self.country_data),self.user_img])
+            # print(dict)
+            q.put([self.sort(self.country_data),self.user_img,self.start_data])
 
     def get_country(self, page, id, ownerId):
         url = 'https://feedback.aliexpress.com/display/productEvaluation.htm'
@@ -133,6 +139,14 @@ class Data(object):
         prease_html = etree.HTML(html)
         date_list = prease_html.xpath(
             '// *[ @ id = "transction-feedback"] / div[5] / div / div[2] / div[3] / dl / dt / span[2] / text()')
+        user_img = prease_html.xpath('//*[@id="transction-feedback"]/div[5]/div/div[2]/div[3]/dl/dd/ul/li/img/@src')
+        for i in user_img:
+            self.user_img.append(i)
+        start_data = prease_html.xpath('//*[@id="transction-feedback"]/div[2]/ul/li/span[3]/@data')
+        start_data2 = prease_html.xpath('//*[@id="transction-feedback"]/div[2]/ul/li/span[3]/text()')
+        for i in range(len(start_data)):
+            if (start_data[i],start_data2[i]) not in self.start_data:
+                self.start_data.append((start_data[i],start_data2[i]))
         for date in date_list:
             date = date.split(' ')[1] + ' ' + date.split(' ')[2]
             try:
@@ -222,6 +236,12 @@ class Data(object):
         }
         html = requests.get(url2, headers=headers,timeout=5).text
         sellerAdminSeq = re.findall(r'"sellerAdminSeq":(\d+),', html)[0]
+        try:
+            money = re.findall(r'"formatedActivityPrice":"US \$(.*?)",',html)[0]
+        except:
+            money = re.findall(r'"formatedAmount":"US \$(.*?)",',html)[0]
+        self.min = money.split('-')[0]
+        self.max = money.split('-')[-1]
         self.get_this(ID,sellerAdminSeq,'US')
         # c_list = self.get_c(ID)
         # t_list = []
@@ -239,12 +259,14 @@ class Data(object):
 
     def get_this(self,ID,Seq,c):
         self.get_cookie()
-        url = 'https://www.aliexpress.com/aeglodetailweb/api/logistics/freight?productId='+ID+'&count=1&country='+c+'&provinceCode=&cityCode=&tradeCurrency=USD&sellerAdminSeq='+Seq+'&userScene=PC_DETAIL_SHIPPING_PANEL'
+        # url = 'https://www.aliexpress.com/aeglodetailweb/api/logistics/freight?productId='+ID+'&count=1&country='+c+'&provinceCode=&cityCode=&tradeCurrency=USD&sellerAdminSeq='+Seq+'&userScene=PC_DETAIL_SHIPPING_PANEL&sendGoodsCountry=CN'
+        url='https://www.aliexpress.com/aeglodetailweb/api/logistics/freight?productId='+ID+'&count=1&minPrice='+ self.min +'&maxPrice='+self.max+'&country='+c+'&provinceCode=&cityCode=&tradeCurrency=USD&sellerAdminSeq='+Seq+'&userScene=PC_DETAIL_SHIPPING_PANEL&sendGoodsCountry=CN'
         headers = {
             'accept': 'application/json,text/plain,*/*',
             'accept-encoding': 'gzip,deflate,br',
             'accept-language': 'zh-CN,zh;q=0.9',
-            'cookie': 'ali_apache_id=11.251.144.15.1572861317639.195914.2; xman_us_f=x_locale=en_US&x_l=1&acs_rt=3c4a49826285416e94cea3b1b14ff7f8; aep_usuc_f=site=glo&c_tp=USD&region=CN&b_locale=en_US; cna=huNGFnz+B3MCAQFW8JqxGSXZ; _bl_uid=Rzk2023RkUI9Ud0OnoeboL3xew5R; _gid=GA1.2.1561212313.1572861319; _ga=GA1.2.568075396.1572861319; ali_apache_track=; acs_usuc_t=x_csrf=74h18mtskkq8&acs_rt=c0ad6160fed54cebaf3c468b6ae0ac8c; intl_locale=en_US; ali_apache_tracktmp=; XSRF-TOKEN=997eccd5-02f1-4557-879c-1f106b362dc2; _m_h5_tk=336654c967fb3263bdd2255b36d5342c_1573020491676; _m_h5_tk_enc=2689fb10be410429ff9f07e82bb4df2e; xman_t=' + self.xman_t + '; xman_f=SBFZdj+BnZnmdUxf8la3Hfid1/3RCEPPHsKODWu0sPrIlNh7unmwpKvDqvIDXK4FTarMb21EZn0/BdUy4QWtQFqHxkfUf65sILG84gCidn+IfhufCKY3Kg==; aep_history=keywords%5E%0Akeywords%09%0A%0Aproduct_selloffer%5E%0Aproduct_selloffer%0932966710197%0932958887589%0932986423876%0932966710197%0932986423876%0932999786359%0932885961437%094000145122144; intl_common_forever=' + self.intl_common_forever + '; JSESSIONID=' + self.JSESSIONID + '; isg=BGVlUHTfVKaWmLAHInwEd2DQdCGfohk089jvPWdKIRyrfoXwL_IpBPMfCKKt_jHs; l=dBSgfDS4qCVt2gopBOCwourza77OSIRAguPzaNbMi_5aN6_cnobOkI5onF96cjWfMHLB4HZmVQy9-etk2Csuuzu7w2mIAxDc.',
+            # 'cookie': 'ali_apache_id=11.251.144.15.1572861317639.195914.2; xman_us_f=x_locale=en_US&x_l=1&acs_rt=3c4a49826285416e94cea3b1b14ff7f8; aep_usuc_f=site=glo&c_tp=USD&region=CN&b_locale=en_US; cna=huNGFnz+B3MCAQFW8JqxGSXZ; _bl_uid=Rzk2023RkUI9Ud0OnoeboL3xew5R; _gid=GA1.2.1561212313.1572861319; _ga=GA1.2.568075396.1572861319; ali_apache_track=; acs_usuc_t=x_csrf=74h18mtskkq8&acs_rt=c0ad6160fed54cebaf3c468b6ae0ac8c; intl_locale=en_US; ali_apache_tracktmp=; XSRF-TOKEN=997eccd5-02f1-4557-879c-1f106b362dc2; _m_h5_tk=336654c967fb3263bdd2255b36d5342c_1573020491676; _m_h5_tk_enc=2689fb10be410429ff9f07e82bb4df2e; xman_t=' + self.xman_t + '; xman_f=SBFZdj+BnZnmdUxf8la3Hfid1/3RCEPPHsKODWu0sPrIlNh7unmwpKvDqvIDXK4FTarMb21EZn0/BdUy4QWtQFqHxkfUf65sILG84gCidn+IfhufCKY3Kg==; aep_history=keywords%5E%0Akeywords%09%0A%0Aproduct_selloffer%5E%0Aproduct_selloffer%0932966710197%0932958887589%0932986423876%0932966710197%0932986423876%0932999786359%0932885961437%094000145122144; intl_common_forever=' + self.intl_common_forever + '; JSESSIONID=' + self.JSESSIONID + '; isg=BGVlUHTfVKaWmLAHInwEd2DQdCGfohk089jvPWdKIRyrfoXwL_IpBPMfCKKt_jHs; l=dBSgfDS4qCVt2gopBOCwourza77OSIRAguPzaNbMi_5aN6_cnobOkI5onF96cjWfMHLB4HZmVQy9-etk2Csuuzu7w2mIAxDc.',
+            'cookie':'ali_apache_id=11.134.216.25.157352968468.196389.7; xman_us_f=x_locale=en_US&x_l=1; acs_usuc_t=x_csrf=pccqkqxum5ub&acs_rt=8f4340552d884fc9b14ec69e1b1ce47f; intl_locale=en_US; aep_usuc_f=site=glo&c_tp=USD&region=CN&b_locale=en_US; xman_t=' + self.xman_t + '; xman_f=aRY3S1/gITRIk624ZfmhXuekAp/Dzbk9ddiZ7aVyH7jIwpgXakGrpZCk4voxxN+SljhG46VugKmlrBCLNHzB0CTMDnEGOpAG27IY7XPcwhX/TIOy8M1E4Q==; cna=mRNRFnm6b0QCAQFQi2Uh5oKm; XSRF-TOKEN=0f2e98e4-4b20-41b3-84f0-bef8f51374e1; _bl_uid=1jk372qhv7bb4k1Xp1IO1OvnaIaC; _m_h5_tk=feda0eb8166cce5bb10c7d6fb54711d8_1573538102433; _m_h5_tk_enc=b047bfb46eae822b1b714a19d11a0fab; _ga=GA1.2.690343328.1573529822; _gid=GA1.2.872316445.1573529822; ali_apache_track=; ali_apache_tracktmp=; intl_common_forever=' + self.intl_common_forever + '; JSESSIONID=' + self.JSESSIONID + '; aep_history=keywords%5E%0Akeywords%09%0A%0Aproduct_selloffer%5E%0Aproduct_selloffer%0932974380872%094000278711415; _gat=1; l=dBSgfDS4qCVt2RLfKOCZourza779xIRfguPzaNbMi_5a5686KYWOkC-DbFJ6cjWcixTp4HZmVQyTlFezSPkbdzAExDF8_6weCef..; isg=BKys_wqT3bUrnsn8Q1v9fNH_fYreZVAPwod2Zgbt_Nf6EU0bL3eunJLnMZkMmYh',
             'referer': 'https://www.aliexpress.com/item/'+ID+'.html',
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-origin',

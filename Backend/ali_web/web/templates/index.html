@@ -21,6 +21,32 @@
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="/static/js/operation.js"></script>
     <script type="text/javascript" src="/static/js/base64.js"></script>
+    <script>
+        window.onload = function () {
+                //禁止F12
+                $("*").keydown(function (e) {//判断按键
+                    e = window.event || e || e.which;
+                    if (e.keyCode == 123) {
+                        alert(returnCitySN["cname"]+','+returnCitySN["cip"]+'\r\n'+'想偷代码了？这样做是不对的哦！');
+                        e.keyCode = 0;
+                        return false;
+                    }
+                    if (e.keyCode == 85 && e.ctrlKey) {
+                        window.opener.location.reload();
+                        window.close();
+                    }
+                });
+                //禁止审查元素
+                $(document).bind("contextmenu",function(e){
+                    return false;
+                });
+            };
+    </script>
+    <style type="text/css">
+        img{
+            cursor:pointer;
+        }
+    </style>
 </head>
 <body>
 <div class="x-nav">
@@ -31,6 +57,14 @@
           </span>
     <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
         <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></a>
+    <button class="layui-btn layui-btn-danger" id="ali_go" style="line-height:1.6em;margin-top:3px;float:right"><i class="layui-icon"></i>Download AliGo</button>
+    <script>
+        $(function (){
+            $('#ali_go').click(function () {
+                window.open('/static/download/AliGo/AliGo.rar')
+            });
+        });
+    </script>
     <span id="lo">
 <!--        <a style="line-height:1.6em;margin-top:3px;float:right;text-align:center;" onclick="" title="登录">登录</a>&nbsp;-->
     </span>
@@ -150,8 +184,10 @@
                         $('#next').click(function () {
                             var index = $('#index').html();
                             var all = $('#all').html();
+                            console.log(all)
+                            console.log(index)
                             var page = Number(index) + 1;
-                            if ( index == all ) {
+                            if ( Number(index) == Number(all) ) {
                                 alert('This is the last page！');
                             }else {
                                 window.location.href="/?page="+page;

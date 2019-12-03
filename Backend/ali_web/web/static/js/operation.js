@@ -33,7 +33,7 @@ $(function (){
                                 header_html += '<th>'+JsonData["data"][x][y]+'</th>';
                             }else{
                                 if (JsonData["data"][0][y] == "imgUrl"){
-                                    body_html += '<th>'+JsonData["data"][x][y]+'<img src="'+JsonData["data"][x][y]+'"></th>'
+                                    body_html += '<th>'+JsonData["data"][x][y]+'<img src="'+JsonData["data"][x][y]+'" name="'+x+'" class="look_img"><input class="uplook_img" name="'+x+'" style="float:right;display:none;" type="file" accept="image/gif, image/jpg, image/png"></th>'
                                 }else{
                                     body_html += '<th>'+JsonData["data"][x][y]+'</th>'
                                 }
@@ -226,8 +226,20 @@ $(function (){
                         alert('Nothingness！');
                     }else {
                         var JsonData = JSON.parse(str);
-                        $('#name').html('<tr><th>ID</th><th>title</th><th>操作</th></tr>');
-                        $('#data').html('<tr><th>'+JsonData["ID"]+'</th><th>'+JsonData["title"]+'</th><th><button class="look" value="'+JsonData["ID"]+'">查看</button><button class="del" value="'+JsonData["ID"]+'">删除</button></th></tr>');
+                        $('#name').html('<tr><th>ID</th><th>Product Name</th><th>Stock</th><th>Operation</th></tr>');
+                        html = ''
+                        html += '<tr><th><a href="https://www.aliexpress.com/item/'+JsonData["ID"]+'.html">'+JsonData["ID"]+'</a></th>'
+                        html += '<th>'+JsonData["title"]+'<a class="change_img" name="'+ JsonData["ID"] +'"><img id="'+ JsonData["ID"] +'" src="'+JsonData["showimg"]+'"></a><input class="upshow_img" name="'+ JsonData["ID"] +'" style="float:right;display:none;" type="file" accept="image/gif, image/jpg, image/png"></th>'
+                        html += '<th>'+JsonData["stock"]+'</th>'
+                        html += '<th>'
+                        html += '<button class="layui-btn JsonData" value="'+ JsonData["ID"] +'">JsonData</button>&nbsp;'
+                        html += '<button class="layui-btn layui-btn-danger look" value="'+ JsonData["ID"] +'">Details</button>&nbsp;'
+                        html += '<button class="layui-btn del" value="'+ JsonData["ID"] +'">Delete</button>&nbsp;'
+                        html += '<button class="layui-btn layui-btn-danger Download_CSV" value="'+ JsonData["ID"] +'">Download CSV</button>&nbsp;'
+                        html += '<button class="layui-btn en" value="'+ JsonData["ID"] +'">Download Checked CSV</button>&nbsp;'
+                        html += '<button class="layui-btn layui-btn-danger wish" value="'+ JsonData["ID"] +'">Download Wish CSV</button>'
+                        html += '</th></tr>'
+                        $('#data').html(html);
                         $('#pg').html('');
                         $('#save').html('<button class="layui-btn"  id="create"><i class="layui-icon"></i>Add</button>');
                     }
@@ -436,7 +448,6 @@ $(function (){
                 url: "/type/",//url
                 data: {"type": type},//传输的数据
                 success: function (data) {
-                    console.log(data['data']);
                     html = ''
                     for (var i in data['data']){
                         console.log(i)
@@ -482,9 +493,9 @@ $(function (){
     });
     // type分页
     $(document).on('click','#type_up',function(){
-        console.log('aaaaaaa');
         $('input[id="CSV_ALL"]').prop('checked',false);
         var index = $('#index').html();
+        console.log(index)
         if ( index == 1 ) {
             alert('This is the first page！')
         }else{
@@ -542,7 +553,7 @@ $(function (){
         $('input[id="CSV_ALL"]').prop('checked',false);
         var index = $('#index').html();
         var all = $('#all').html();
-        if ( index == all ) {
+        if ( Number(index) == Number(all) ) {
             alert('This is the last page！')
         }else{
             var type = $('#type').val();
@@ -599,6 +610,8 @@ $(function (){
         $('input[id="CSV_ALL"]').prop('checked',false);
         var all = $('#all').html();
         var pag = $('#type_pag').val();
+        console.log(all)
+        console.log(pag)
         if ($.isNumeric(pag) == false) {
             alert('Please enter the correct number of pages!');
         }else if (pag > all ) {
@@ -632,7 +645,7 @@ $(function (){
                     html = '&nbsp;&nbsp;&nbsp;&nbsp;<button class="layui-btn" id="type_up" style="background-image: linear-gradient(#fbb2d0, #e779aa)"><strong style="font-size:15px;">Previous</strong></button>&nbsp;&nbsp;'
                     html += '<span>'
                     html += '<strong style="font-size:15px;">Page</strong>&nbsp;&nbsp;'
-                    html += '<strong style="font-size:15px;" id="index">'+(Number(index)+1)+'</strong>&nbsp;&nbsp;'
+                    html += '<strong style="font-size:15px;" id="index">'+pag+'</strong>&nbsp;&nbsp;'
                     html += '<strong style="font-size:15px;">of</strong>&nbsp;&nbsp;'
                     html += '<strong style="font-size:15px;">'+data['page']+'</strong>'
                     html += '</span>&nbsp;&nbsp;&nbsp;'
@@ -915,9 +928,7 @@ $(function (){
         })
     })
     $(document).on('click','.change_img',function(){
-        console.log('aaa');
         var name = $(this)['0']['name'];
-        console.log(name)
         $('input[name="'+name+'"]').click();
     })
     $(document).on('change','.upshow_img',function(){
@@ -941,6 +952,45 @@ $(function (){
                     alert('Upload Error!')
                 }else{
                     $('#'+id).attr('src',data)
+                }
+            }, error: function(data){
+                console.log(data);
+            }
+        })
+    })
+    $(document).on('click','.look_img',function(){
+        var name = $(this)['0']['name'];
+        $('input[name="'+name+'"]').click();
+    })
+    $(document).on('change','.uplook_img',function(){
+        // 创建一个表单对象（用于存储要发送的data数据）
+        var id = $('#thisId').html()
+        var name = $(this)['0']['name'];
+        var host = window.location.host
+        console.log(id)
+        console.log(name)
+        console.log(host)
+        form_data = new FormData;
+        // 参数1：后端请求时要获取的参数, 参数2：图片文件File对象
+        form_data.append("files", $(this)[0].files[0]);
+        form_data.append("ID", id);
+        form_data.append("host", host);
+        form_data.append("line", name);
+
+        // 向后端发送 ajax 请求
+        $.ajax({
+            url: "/look_img/",
+            method: "POST",//传输方式
+            contentType: false,        // 告诉jQuery不要去设置Content-Type请求头
+            processData: false,        // 告诉jQuery不要去处理发送的数据
+            data: form_data,
+            success: function(data){
+                if (data == 'error') {
+                    alert('Upload Error!')
+                }else{
+                    console.log(data)
+                    $('img[name="'+name+'"]').attr('src',data)
+                    $('img[name="'+name+'"]').parent().html(data+'<img src="'+data+'" name="'+name+'" class="look_img"><input class="uplook_img" name="'+name+'" style="float:right;display:none;" type="file" accept="image/gif, image/jpg, image/png">') 
                 }
             }, error: function(data){
                 console.log(data);

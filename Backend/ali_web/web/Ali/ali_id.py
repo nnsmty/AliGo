@@ -35,7 +35,6 @@ def get_freight(ID):
         Price = re.findall(r'"formatedActivityPrice":.*?\$(.*?)"', html)[0]
     except:
         Price = re.findall(r'"formatedPrice":.*?\$(.*?)"', html)[0]
-
     intl_common_forever = re.findall(r'intl_common_forever=(.*?);', cookie)[0]
     JSESSIONID = re.findall(r'JSESSIONID=(.*?);', cookie)[0]
     xman_t = re.findall(r'xman_t=(.*?);', cookie)[0]
@@ -157,9 +156,13 @@ def get_data(ID):
     # 		size = re.findall('"propertyValueDisplayName":"(.*?)","propertyValueId":(\d+),', i[1])
     # 	elif 'Color' in i[0]:
     # 		color_data = re.findall(r'"propertyValueDisplayName":"(.*?)","propertyValueId":(\d+),',i[1])
-    Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"actSkuMultiCurrencyDisplayPrice":"(.*?)".*?"availQuantity":(\d+),.*?}}', html)
+    Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"actSkuCalPrice":"(.*?)".*?"availQuantity":(\d+),.*?}}', html)
+    Quantity_type = 1
+    if Quantity == []:
+        Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"availQuantity":(\d+),.*?"skuMultiCurrencyDisplayPrice":"(.*?)".*?}}', html)
+        Quantity_type = 2
     # Quantity = re.findall(r'"skuPropIds":"(.*?)",.*?"availQuantity":(\d+),.*?}}', html)
-    # print(Quantity)
+    print(Quantity)
     list1 = []
     for x in dict:
         for y in dict[x]:
@@ -215,8 +218,8 @@ def get_data(ID):
     name_list = []
     for i in dict:
         name_list.append(i)
-    # print(sDic)
-    return to_2D(url, sDic, name_list)
+    print(sDic)
+    return to_2D(url, sDic, name_list, Quantity_type)
 
 
 # return product_data(url,sDic,name_list)
@@ -295,7 +298,7 @@ def write_csv(url, sDic, Name_list):
         csv_writer.writerow(data_list)
 
 
-def to_2D(url, sDic, Name_list):
+def to_2D(url, sDic, Name_list, Q_t):
     ID = re.findall(r'/(\d+).html', url)[0]
     all_list = []
     name_list = ['product Name', 'Original(US $)', 'product Price(US $)', "formatedPrice(US $)", 'overview-rating', 'reviews', 'orders',
@@ -306,9 +309,14 @@ def to_2D(url, sDic, Name_list):
         for x in ['storeName', 'storeUrl', 'storeNumber', 'followers', 'rating']:
             name_list.append(x)
     else:
-        for x in ['Price','Inventory', 'imgUrl', 'storeName', 'storeUrl', 'storeNumber', 'followers',
-                  'rating']:
-            name_list.append(x)
+        if Q_t == 1:
+            for x in ['Price','Inventory', 'imgUrl', 'storeName', 'storeUrl', 'storeNumber', 'followers',
+                      'rating']:
+                name_list.append(x)
+        elif Q_t == 2:
+            for x in ['Inventory','Price', 'imgUrl', 'storeName', 'storeUrl', 'storeNumber', 'followers',
+                      'rating']:
+                name_list.append(x)
     all_list.append(name_list)
     data = sDic
     # print(name_list)
@@ -338,6 +346,7 @@ def to_2D(url, sDic, Name_list):
                 if name_list[x] != 'imgUrl':
                     data_list.append(data[name_list[x]])
         all_list.append(data_list)
+    print(all_list)
     return all_list
 
 # if __name__ == '__main__':

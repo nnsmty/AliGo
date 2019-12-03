@@ -8,11 +8,14 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FavoritesManager">
+    <favorites_list name="ali_web" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -24,11 +27,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\Desktop\ali_web\web\static\download\AliGo" />
       <recent name="C:\Users\Administrator\Desktop\ali_web" />
       <recent name="C:\Users\Administrator\Desktop\ali_web\web\templates" />
       <recent name="C:\Users\Administrator\Desktop\ali_web\web\static\lib\layui\css" />
       <recent name="C:\Users\Administrator\Desktop\ali_web\web\static\lib\layui\css\modules" />
-      <recent name="C:\Users\Administrator\Desktop\ali_web\web\static\lib" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Administrator\Desktop\ali_web\web\static\images" />
@@ -50,7 +53,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.update">
+  <component name="RunManager" selected="Python.1">
     <configuration name="1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ali_web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -158,11 +161,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.1" />
+        <item itemvalue="Python.ali_kw" />
         <item itemvalue="Python.update" />
         <item itemvalue="Python.aliexpress" />
         <item itemvalue="Python.ali_id" />
-        <item itemvalue="Python.1" />
-        <item itemvalue="Python.ali_kw" />
       </list>
     </recent_temporary>
   </component>
@@ -178,5 +181,16 @@
       <updated>1571998299242</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/web/web/settings.py</url>
+          <line>15</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -27,6 +27,7 @@ urlpatterns = [
     re_path('json/api/(\d+)', views.order_json),
     path('img/', views.imgViews),
     path('show_img/', views.change_show),
+    path('look_img/', views.look_show),
     path('country/', views.country),
 
 ]
